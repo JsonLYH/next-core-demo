@@ -542,6 +542,8 @@ pnpm build
 ## standalone模式
 需要拷贝static到standalone/.next文件夹下，拷贝外层public文件夹到standalone下
 ![img_38.png](img_38.png)
+### 配置standalone模式
+![img_42.png](img_42.png)
 ### 自定义build:standalone指令
 为了方便，可以自定义build:standalone指令
 ```javascript
