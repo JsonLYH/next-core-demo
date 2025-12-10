@@ -1,7 +1,7 @@
 export default async function Page({ params } :{params:{id?:string}}) {
     const paramsRes:{
         id?:string
-    } = await params;
+    } =await params;
     console.log(paramsRes.id);
     return (
         <div>

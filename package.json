@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:standalone": "next build && pnpm move-static && pnpm move-public",
+    "move-static": "xcopy /e /i .next\\static .next\\standalone\\.next\\static",
+    "move-public": "xcopy /e /i public .next\\standalone\\public",
     "start": "next start",
     "lint": "eslint"
   },

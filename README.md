@@ -439,6 +439,7 @@ SSG是Static Site Generation的缩写，即静态站点生成。像我们使用�
 例如我们需要一个查看文档的网站，例如Vue React 等文档，大家看到的都是一样的，所以我们在构建的时候，直接编译成静态文件，连接口都不用请求了，如果在部署CDN/Nginx等服务器，基本可以实现秒开。
 ### 工作流程
 项目构建 npm run build -> 生成静态文件（每个路由对应一个 HTML） -> 部署到CDN/Nginx等服务器 -> 浏览器请求服务器 -> 服务器返回HTML页面 -> hydration
+
 ![img_21.png](img_21.png)
 ### 优点
 > 1. 首屏加载极快（CDN 分发静态文件，无需服务器实时渲染）
@@ -508,6 +509,8 @@ npm run build
 pnpm start
 ```
 ## export模式（静态打包）
+前面说了默认打包，需要node.js环境和拷贝node_modules文件夹，如果我们只用了next.js静态部分，没用到api服务，官方提供了静态打包方式。
+
 对于动态路由页面，必须使用generateStaticParams函数来生成静态参数，且generateStaticParams不能与'use client'同时存在,否则会报错。
 
 此模式，打包出来纯静态文件，设置ISR的revalidate：xxx相关参数均无效
@@ -537,15 +540,67 @@ pnpm build
 
 打包完，会在根目录生成out目录用于部署
 ## standalone模式
+需要拷贝static到standalone/.next文件夹下，拷贝外层public文件夹到standalone下
+![img_38.png](img_38.png)
+### 自定义build:standalone指令
+为了方便，可以自定义build:standalone指令
+```javascript
+"scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:standalone": "next build && pnpm move-static && pnpm move-public",
+    "move-static": "xcopy /e /i .next\\static .next\\standalone\\.next\\static",
+    "move-public": "xcopy /e /i public .next\\standalone\\public",
+    "start": "next start",
+    "lint": "eslint"
+},
+```
+### 打包
+```javascript
+pnpm build:standalone
+```
+打包完成后的目录，如下图框起来的范围
+![img_39.png](img_39.png)
+### 运行项目
+进入standalone目录，运行以下命令即可
+```javascript
+node server.js
+```
+![img_40.png](img_40.png)
+![img_41.png](img_41.png)
+# 对比各个渲染模式
+![img_36.png](img_36.png)
+
+# 最佳实践
+> 1.不要滥用 "use client"，将组件职责划分清清楚。仅在必要时使用客户端组件。
+
+> 2.合理使用 loading/error/template 提高用户体验。
+
+> 3.服务端组件只负责请求数据和结构输出，不负责交互。
+
+> 4.需要交互的部分才抽离为客户端组件，避免客户端负载过重。
 
 # 注意事项
 ## 1.APP路由系统新建的页面，比如页面a,需要建个名为a的目录，然后再在a目录里建个page.tsx文件，这样就可以访问到/a路由了，切记不能直接建立a.tsx文件,不会生成对应的路由。
 ![img_2.png](img_2.png)
 ## 2.在开发环境设置revalidate参数，不会生效
-## 3.不设置revalidate参数，打包部署后，默认就是静态内容（打包那一刻的内容），每次访问时，不会请求后端接口进行更新，想要每次请求，都在服务端重新请求数据渲染，需要在页面函数中显式的设置revalidate参数，设置为0即可。
+## 3.不设置revalidate参数，打包部署后，默认就是静态内容（打包那一刻的内容），每次访问时，不会请求后端接口进行更新(因为fetch默认就是缓存的)，想要每次请求，都在服务端重新请求数据渲染，需要在页面函数中显式的设置revalidate参数，设置为0或者配置即可。
+或者配置
+```javascript
+// 禁止缓存（强制动态）
+export const dynamic = 'force-dynamic';
+```
+或者给fetch配置'no-cache'
+![img_34.png](img_34.png)
 ## 4.默认打包模式下，首次打包过后，会有缓存，导致下次打包时，不会请求后端接口获取新的数据，导致使用旧的seo信息，所以最好在每次打包前都把.next目录删除，重新打包。
 ## 5.Nuxt是默认刷新页面请求一次，就在后端渲染最新数据内容，Next默认是打包构建那一刻对于服务端侧的内容，就进行了预渲染，后续刷新页面再次访问时，不会再请求后端接口，而是直接使用缓存的内容。
 ## 6.use client情况下，不能使用revalidate参数
 ![img_30.png](img_30.png)
 ## 7.目前在next16版本下，使用'use client',结合以下方式请求后端接口，会导致无限循环请求后端接口
+客户端组件用于交互，异步逻辑通过useEffect实现，不能直接定义为异步函数本身。
 ![img_31.png](img_31.png)
+## 8.useParams与async语法糖不能同时使用
+![img_33.png](img_33.png)
+## 9.如果既想拿到路由参数的同时，又想拥有ssr的效果（每次请求都返回最新的数据），可以async await + props + 'force-dynamic'
+![img_35.png](img_35.png)
+## 10.ISR (配置了revalidate参数)，增量更新用户是无感知的（到达更新缓存的时间时，如果后端接口响应缓慢，前端是不会显示loading的，即使你配置了loading模板）
