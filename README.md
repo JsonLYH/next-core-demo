@@ -473,6 +473,7 @@ hydrateRoot() 会对比浏览器中的真实 DOM 和 React 组件的虚拟 DOM�
 ```
 # RSC(减少bundle体积、避免全量水合)
 区分服务器组件和客户端组件
+
 链接：https://nextjs-docs-henna-six.vercel.app/tutorials/rsc
 ## 优点
 > 1. 将组件拆分成客户端组件和服务器组件，可以有效的减少bundle体积，因为服务器组件已经在服务器渲染好了，所以没必要打入bundle中,也就是说服务器组件所依赖的包都不会打进去，大大减少了bundle体积。
