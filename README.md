@@ -146,7 +146,7 @@ app
 ```
 ![img_3.png](img_3.png)
 A页面、B页面相互跳转时，layout是不会重新渲染的，但template每次都会重新渲染
-## error(错误)
+## error(错误页)
 app/blog/error.tsx
 ```javascript
 'use client' //错误组件必须是客户端组件
