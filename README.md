@@ -1,5 +1,7 @@
 # 中文教程网
 博文链接：https://nextjs-docs-henna-six.vercel.app/tutorials/project-structure
+# App 路由文件约定
+![img_43.png](img_43.png)
 # 创建项目
 ```javascript
 npx create-next-app@latest
@@ -121,6 +123,11 @@ export default async function Home() {
   return <div>{data.name}</div>;
 }
 ```
+## 退出路由
+为文件夹增加 _ 前缀，即可将该文件夹和它的所有子目录退出路由段。
+> app/_user/[id]/page.jsx 不渲染
+
+> app/_user/[id]/(profile)/page.jsx 不渲染
 ## layout && template
 ### layout(布局)
 布局是多个页面共享UI，例如导航栏、侧边栏、底部等。
@@ -491,7 +498,7 @@ hydrateRoot() 会对比浏览器中的真实 DOM 和 React 组件的虚拟 DOM�
 
 # 部署打包模式
 ## 默认模式
-在App路由中设置generateStaticParams函数，在生产环境下，指定的静态路径不会触发页面函数逻辑的执行，静态路径以外的才会触发页面函数逻辑的执行。
+在App路由中设置generateStaticParams函数(可在普通页面、layout页设置)，在生产环境下，指定的静态路径不会触发页面函数逻辑的执行，静态路径以外的才会触发页面函数逻辑的执行。
 ![img_28.png](img_28.png)
 
 生产环境，除了1、2，其他都会触发
@@ -581,7 +588,85 @@ node server.js
 > 3.服务端组件只负责请求数据和结构输出，不负责交互。
 
 > 4.需要交互的部分才抽离为客户端组件，避免客户端负载过重。
+> 
 
+# meta元数据设置
+原先的 Pages 路由，元数据都是通过 next/head 编写在组件中的。
+## 静态
+```javascript
+export const metadata = {
+  title: '首页标题',
+  description: '首页描述',
+  keywords: '首页关键词',
+  openGraph: {
+    title: 'OG 标题',
+    description: 'OG 描述',
+    url: 'https://example.com/page',
+    images: [{ url: '/og.png' }],
+  },
+  twitter: {
+    title: 'Twitter 标题',
+    description: 'Twitter 描述',
+    images: [{ url: '/twitter.png' }],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    }
+  },
+  manifest: '/manifest.json',
+  alternates: {
+    canonical: '/',
+    languages: {
+      'zh-CN': '/zh-cn',
+    },
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
+  // ...
+}
+
+export default function HomePage(){
+  return (
+    <div>
+      首页
+    </div>
+  )
+}
+
+```
+## 动态
+```javascript
+export async function generateMetadata() {
+  return requestHomeMetadata()
+    .then(response => response.json())
+    .then(raw => {
+      // todo ...
+      return raw
+    })
+    .then(data => {
+      return {
+        title: data.title,
+        description: data.description
+      }
+    })
+}
+
+export default function HomePage(){
+  return (
+    <div>
+      首页
+    </div>
+  )
+}
+
+```
 # 注意事项
 ## 1.APP路由系统新建的页面，比如页面a,需要建个名为a的目录，然后再在a目录里建个page.tsx文件，这样就可以访问到/a路由了，切记不能直接建立a.tsx文件,不会生成对应的路由。
 ![img_2.png](img_2.png)
@@ -606,3 +691,11 @@ export const dynamic = 'force-dynamic';
 ## 9.如果既想拿到路由参数的同时，又想拥有ssr的效果（每次请求都返回最新的数据），可以async await + props + 'force-dynamic'
 ![img_35.png](img_35.png)
 ## 10.ISR (配置了revalidate参数)，增量更新用户是无感知的（到达更新缓存的时间时，如果后端接口响应缓慢，前端是不会显示loading的，即使你配置了loading模板）
+## 11.在 App 路由中，没有 getStaticPaths，取而代之的是 generateStaticParams 函数。
+如果需要 getStaticProps，则在页面组件中直接 fetch 即可（页面必须是服务端组件才能够直接 fetch）
+## 12.Pages路由与App路由的useRouter区别
+>与 Pages 路由不同，App 路由虽然也使用 useRouter，但是是从 next/navigation 中导入的，而不是 Pages 路由的 next/router。
+
+>原先的 Pages 路由的 useRouter 提供的 query、pathname 等属性在 App 路由中不存在，取而代之的是需要从 next/navigation 导入的 useSearchParams，usePathname 等 API。
+
+>且需要注意，App 路由和 Pages 路由的 useRouter 是不兼容的。
