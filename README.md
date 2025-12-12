@@ -115,7 +115,7 @@ export default function Home({ data }) {
 }
 ```
 ### App Router
-直接在组件中使用fetch调用即可
+直接在组件中使用fetch调用即可(相当于getStaticProps)
 ```javascript
 export default async function Home() {
   const res = await fetch('xxx');
