@@ -420,6 +420,8 @@ export default function TeamDefault() {
 ## 注意事项
 ### 1.对于异步组件需要使用getTranslations，而不是useTranslations，否则会报错
 ![img_50.png](img_50.png)
+### 2.整合时i18n目录、messages目录不知道放在哪一层的话，就根据报错的提示来调整
+![img_53.png](img_53.png)
 # 渲染方式
 ## CSR
 CSR是Client Side Rendering的缩写，即客户端渲染。像我们使用的Vue React Angular 等框架，都是CSR。
