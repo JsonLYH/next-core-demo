@@ -6,6 +6,7 @@
 ```javascript
 npx create-next-app@latest
 ```
+这个示例项目，我当时创建项目时，选的是默认，没有选择自定义，具体看你自己的选择！
 ```javascript
 选择自定义安装，接下来会有几个问题需要你选择，根据你的需求选择即可
 What is your project named? » my-app 项目名称（必填）
@@ -405,8 +406,20 @@ export default function TeamDefault() {
 >然后分别访问以上的/home、/about路径查看效果即可
 ## 路由处理、api编写
 直接参考链接：https://nextjs-docs-henna-six.vercel.app/tutorials/route-handling
-# Proxy代理/请求拦截
+# Proxy代理/请求拦截（proxy.ts）
 参考链接：https://nextjs-docs-henna-six.vercel.app/tutorials/proxy
+# 国际化
+>总的来说国际化分为两种，第一种是基于区域的路由（唯一路径名，比如/en/about），第二种是基于cookie的（非唯一路径名，比如/about）
+
+> 第一种是需要另外的配置，第二种是默认的
+## 开始整合
+文档链接：https://next-intl.dev/docs/getting-started/app-router
+
+很简单，需要用到时，直接跟着文档进行操作吧~，这里我就不进行演示了
+
+## 注意事项
+### 1.对于异步组件需要使用getTranslations，而不是useTranslations，否则会报错
+![img_50.png](img_50.png)
 # 渲染方式
 ## CSR
 CSR是Client Side Rendering的缩写，即客户端渲染。像我们使用的Vue React Angular 等框架，都是CSR。
