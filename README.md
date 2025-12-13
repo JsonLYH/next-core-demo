@@ -853,3 +853,10 @@ export const dynamic = 'force-dynamic';
 >且需要注意，App 路由和 Pages 路由的 useRouter 是不兼容的。
 
 ## 13.next.js，在执行默认模式打包时，可能会因为管理员权限而报错，切到管理员权限再进行打包即可
+
+## 14.在使用loading模板时，浏览器只会先抓取显示loading模板内容，对于原文内容的话，是加上了hidden，而且是分片传输的，所以就有了下边我们看到的接口响应没完成，就先展示loading效果，后端响应了就展示原文内容，而且都是在同一个响应的html文档当中
+![img_51.png](img_51.png)
+
+浏览器端收到的html响应，还是有相关内容的
+
+![img_52.png](img_52.png)
